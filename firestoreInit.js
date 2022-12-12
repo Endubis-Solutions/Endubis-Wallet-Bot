@@ -6,9 +6,10 @@ const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
 
 initializeApp();
+require("dotenv").config();
 
 const db = getFirestore();
-const sessionDocName = process.env.sessionDocName || "sessionsSecure";
+const sessionDocName = process.env.firestoreDocName || "sessionsSecure";
 const getSessionKey = (ctx) =>
   ctx.from && ctx.chat
     ? `${ctx.from.id}-${ctx.chat.id}`

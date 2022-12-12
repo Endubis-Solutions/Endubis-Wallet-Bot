@@ -71,7 +71,7 @@ const getAddressSummaries = async (addresses) => {
     }
   };
   const summary = await postObjectAsJsonWithRetries(
-    `https://explorer-testnet.adalite.io/api/bulk/addresses/summary`,
+    `https://explorer-preprod.adalite.io/api/bulk/addresses/summary`,
     addresses
   );
   const { caBalance, caTxList } = summary.Right;

@@ -1,7 +1,8 @@
 const { bech32 } = require("cardano-crypto.js");
 const { WalletServer, ShelleyWallet, Seed } = require("cardano-wallet-js");
 const blake = require("blakejs");
-const testnetConfig = require("../testnetConfig");
+const fetch = require("cross-fetch");
+const preprodConfig = require("../preprodConfig");
 const {
   getAddressesInfo,
 } = require("./newWalletUtils/helpers/getAddressesInfo");
@@ -217,7 +218,7 @@ const buildTransaction = async (wallet, amount, receiverAddress) => {
     throw Error("Can not build transaction. Check the amount or address");
   }
   const opts = {
-    config: testnetConfig,
+    config: preprodConfig,
   };
   try {
     return {

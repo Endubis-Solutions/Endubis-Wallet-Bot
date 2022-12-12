@@ -8,10 +8,10 @@ const writeXpubDataToSession = async (
   try {
     const sessionRef = db.collection(sessionDocName).doc(sessionKey);
     const sessionDataDoc = await sessionRef.get();
-    if (!sessionDataDoc.exists) {
-      console.log("No such user!");
-      return;
-    }
+    // if (!sessionDataDoc.exists) {
+    //   console.log("No such user!");
+    //   return;
+    // }
     const sessionData = sessionDataDoc.data();
     let XpubsInfo;
     if (sessionData.XpubsInfo) {
