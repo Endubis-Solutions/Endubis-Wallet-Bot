@@ -8,7 +8,7 @@ const { getFirestore } = require("firebase-admin/firestore");
 initializeApp();
 
 const db = getFirestore();
-const sessionDocName = "sessionsSecure";
+const sessionDocName = process.env.sessionDocName || "sessionsSecure";
 const getSessionKey = (ctx) =>
   ctx.from && ctx.chat
     ? `${ctx.from.id}-${ctx.chat.id}`
