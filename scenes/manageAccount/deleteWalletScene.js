@@ -7,6 +7,8 @@ const {
   replyHTML,
 } = require("../../utils/btnMenuHelpers");
 const { deleteMessage } = require("../../handlers/deleteMessageHandler");
+const { getSessionKey } = require("../../firestoreInit");
+const { deleteFieldFromSession } = require("../../utils/firestore");
 
 /*
 Steps: 
@@ -50,6 +52,7 @@ step2.hears("✅ Yes", async (ctx) => {
     await replyMenu(ctx, "Wallet Successfully Deleted");
     const { messageIdsToDelete } = ctx.session;
     ctx.session = null;
+    await deleteFieldFromSession('encryptedMnemonic', getSessionKey(ctx));
     ctx.session.messageIdsToDelete = messageIdsToDelete;
   } catch (e) {
     console.error(e);

@@ -1,5 +1,5 @@
 /* eslint-disable node/no-missing-require */
-const { db, sessionDocName, getSessionKey } = require("../firestoreInit");
+const { db, sessionDocName, getSessionKey, FieldValue } = require("../firestoreInit");
 
 const writeXpubDataToSession = async (
   sessionKey,
@@ -55,6 +55,15 @@ const writeToSession = async (sessionKey, key, object) => {
   return await sessionRef.update({ [key]: object });
 };
 
+const deleteFieldFromSession = async (docName, fieldKey) => {
+  const sessionRef = db.collection(sessionDocName).doc(docName);
+  const sessionDataDoc = await sessionRef.get();
+  if (!sessionDataDoc.exists) {
+    return;
+  }
+  return await sessionRef.update({ [fieldKey]: FieldValue.delete() });
+};
+
 const getSessionData = async (ctx) => {
   const sessionKey = getSessionKey(ctx);
   const sessionRef = db.collection(sessionDocName).doc(sessionKey);
@@ -77,4 +86,5 @@ module.exports = {
   getUserXpubsInfo,
   writeToSession,
   getSessionData,
+  deleteFieldFromSession
 };
