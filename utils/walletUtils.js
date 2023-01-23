@@ -80,6 +80,9 @@ const listWallets = async () => {
 
 const getReceivingAddress = async (walletId) => {
   const wallet = await timeout(getWalletById(walletId), 4000);
+  if (wallet?.state?.status !== "ready") {
+    throw Error("Wallet not ready");
+  }
   const addresses = await wallet.getUnusedAddresses();
   return addresses.slice(0, 1)[0].id;
 };

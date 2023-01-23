@@ -25,7 +25,7 @@ const step1 = (ctx) => {
 
 const step2 = new Composer();
 step2.action("receiving-address", async (ctx) => {
-  const address = await getReceivingAddress(ctx.session);
+  const address = await getReceivingAddress(ctx);
   replyMenuHTML(
     ctx,
     `Any funds sent to this address will appear in your wallet.

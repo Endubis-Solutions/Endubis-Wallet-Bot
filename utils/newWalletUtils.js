@@ -7,28 +7,38 @@ const {
   getAddressesInfo,
 } = require("./newWalletUtils/helpers/getAddressesInfo");
 const { getSessionKey } = require("../firestoreInit");
+const { getSessionData } = require("./firestore");
+const { getReceivingAddress: getReceivingAddressWS } = require("./walletUtils");
 
 require("dotenv").config();
 const walletServer = WalletServer.init(
   process.env.WALLET_SERVER_URL || "http://localhost:8090/v2"
 );
 
-const getReceivingAddress = async (session) => {
-  let { loggedInXpub, XpubsInfo } = session;
-  XpubsInfo = JSON.parse(XpubsInfo);
-  const allAddressesInfo = XpubsInfo.find(
-    (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
-  )?.addressesInfo;
-  const { externalAddressesInfo } = allAddressesInfo;
-  for (const addrInfo of Object.values(externalAddressesInfo)) {
-    const unusedAddress = addrInfo.addresses.find(
-      (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
-    );
-    if (unusedAddress) {
-      return unusedAddress;
+const getReceivingAddress = async (ctx) => {
+  if (ctx.session.xpubWalletId) {
+    return getReceivingAddressWS(ctx.session.xpubWalletId);
+  } else if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
+    let { loggedInXpub, XpubsInfo } = ctx.session;
+    XpubsInfo = JSON.parse(XpubsInfo);
+    const allAddressesInfo = XpubsInfo.find(
+      (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
+    )?.addressesInfo;
+    const { externalAddressesInfo } = allAddressesInfo;
+    for (const addrInfo of Object.values(externalAddressesInfo)) {
+      const unusedAddress = addrInfo.addresses.find(
+        (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
+      );
+      if (unusedAddress) {
+        return unusedAddress;
+      }
     }
+    throw Error("Can't find unused address");
+  } else {
+    await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
+    ctx.session = await getSessionData(ctx);
+    return getReceivingAddress(ctx);
   }
-  throw Error("Can't find unused address");
 };
 
 // const deleteWallet = async (walletId) => {};
