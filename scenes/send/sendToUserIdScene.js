@@ -186,7 +186,7 @@ ${formatTxnData(transaction)}`,
         [
           Markup.button.url(
             "More Details",
-            `https://testnet.cardanoscan.io/transaction/${transaction.id}`
+            `https://cardanoscan.io/transaction/${transaction.id}`
           ),
         ],
         [mainMenuButton()],
@@ -217,7 +217,7 @@ step5.action("refresh-txn", async (ctx) => {
       [
         Markup.button.url(
           "More Details",
-          `https://testnet.cardanoscan.io/transaction/${transaction.id}`
+          `https://cardanoscan.io/transaction/${transaction.id}`
         ),
       ],
       Markup.inlineKeyboard([[mainMenuButton()]])
@@ -231,7 +231,7 @@ step5.action("refresh-txn", async (ctx) => {
       [
         Markup.button.url(
           "More Details",
-          `https://testnet.cardanoscan.io/transaction/${transaction.id}`
+          `https://cardanoscan.io/transaction/${transaction.id}`
         ),
       ],
       [mainMenuButton()],

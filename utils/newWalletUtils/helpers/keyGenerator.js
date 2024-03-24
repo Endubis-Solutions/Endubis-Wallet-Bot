@@ -32,7 +32,7 @@ const getPublicKeys = async (cryptoProvider, accountIndex = 0) => {
   return {
     extenalXpub: bech32.encode("endbs", externalXpub),
     internalXpub: bech32.encode("endbs", internalXpub),
-    stakeKey: stakingAddressFromXpub(stakeXpub, NetworkId.TESTNET),
+    stakeKey: stakingAddressFromXpub(stakeXpub, NetworkId.MAINNET),
   };
 };
 

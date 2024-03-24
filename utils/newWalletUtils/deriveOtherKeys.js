@@ -7,7 +7,11 @@ const deriveOtherKeys = async (accountXpub) => {
   // Decode the bech32 encoded accounXpub
   const accountXpubBuffer = bech32.decode(accountXpub).data;
   const config = getConfig();
-  const cryptoProvider = await getCryptoProvider(config, accountXpubBuffer);
+  const cryptoProvider = await getCryptoProvider(
+    config,
+    accountXpubBuffer,
+    accountXpub
+  );
   const keys = await getPublicKeys(cryptoProvider);
   return keys;
 };

@@ -25,18 +25,29 @@ const step1 = (ctx) => {
 
 const step2 = new Composer();
 step2.action("receiving-address", async (ctx) => {
-  const address = await getReceivingAddress(ctx);
-  replyMenuHTML(
-    ctx,
-    `Any funds sent to this address will appear in your wallet.
-
-<code>${address}</code>
-`,
-    Markup.inlineKeyboard([
-      [Markup.button.switchToChat("Share Address", "add")],
-    ])
-  );
-  return ctx.scene.leave();
+  try {
+    const address = await getReceivingAddress(ctx);
+    if(!address) {
+      throw "Error: Try again later";
+    }
+    await replyMenuHTML(
+      ctx,
+      `Any funds sent to this address will appear in your wallet.
+  
+  <code>${address}</code>
+  `,
+      Markup.inlineKeyboard([
+        [Markup.button.switchToChat("Share Address", "add")],
+      ])
+    );
+    return ctx.scene.leave();
+  } catch (e) {
+    await replyMenuHTML(
+      ctx,
+      e?.message || "Error: Try again later"
+    );
+  }
+  
 });
 step2.action("receiving-qr", async (ctx) => {
   const startPayload = Buffer.from(

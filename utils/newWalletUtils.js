@@ -2,7 +2,7 @@ const { bech32 } = require("cardano-crypto.js");
 const { WalletServer, ShelleyWallet, Seed } = require("cardano-wallet-js");
 const blake = require("blakejs");
 const fetch = require("cross-fetch");
-const preprodConfig = require("../preprodConfig");
+const mainnetConfig = require("../mainnetConfig");
 const {
   getAddressesInfo,
 } = require("./newWalletUtils/helpers/getAddressesInfo");
@@ -16,28 +16,65 @@ const walletServer = WalletServer.init(
 );
 
 const getReceivingAddress = async (ctx) => {
-  if (ctx.session.xpubWalletId) {
-    return getReceivingAddressWS(ctx.session.xpubWalletId);
-  } else if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
-    let { loggedInXpub, XpubsInfo } = ctx.session;
-    XpubsInfo = JSON.parse(XpubsInfo);
-    const allAddressesInfo = XpubsInfo.find(
-      (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
-    )?.addressesInfo;
-    const { externalAddressesInfo } = allAddressesInfo;
-    for (const addrInfo of Object.values(externalAddressesInfo)) {
-      const unusedAddress = addrInfo.addresses.find(
-        (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
+  try {
+    const sessionData = ctx.session;
+    if (sessionData?.loggedInXpub && !sessionData?.xpubWalletId) {
+      const wallet = await createCardanoWallet(
+        sessionData.loggedIxnXpub,
+        String(ctx.from.id)
       );
-      if (unusedAddress) {
-        return unusedAddress;
+      if (wallet) {
+        ctx.session.xpubWalletId = wallet.id;
       }
     }
-    throw Error("Can't find unused address");
-  } else {
+    if (ctx.session.xpubWalletId) {
+      return await getReceivingAddressWS(ctx.session.xpubWalletId);
+    } else {
+      await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
+      ctx.session = await getSessionData(ctx);
+      if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
+        let { loggedInXpub, XpubsInfo } = ctx.session;
+        XpubsInfo = JSON.parse(XpubsInfo);
+        const allAddressesInfo = XpubsInfo.find(
+          (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
+        )?.addressesInfo;
+        const { externalAddressesInfo } = allAddressesInfo;
+        for (const addrInfo of Object.values(externalAddressesInfo)) {
+          const unusedAddress = addrInfo.addresses.find(
+            (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
+          );
+          if (unusedAddress) {
+            return unusedAddress;
+          }
+        }
+        throw Error("Wallet is syncing... Please try again later");
+      }
+      throw Error("Wallet is syncing... Please try again later");
+    }
+  } catch (e) {
+    if (e.message === "Wallet is syncing... Please try again later") {
+      throw "Wallet is syncing... Please try again later";
+    }
     await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
     ctx.session = await getSessionData(ctx);
-    return getReceivingAddress(ctx);
+    if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
+      let { loggedInXpub, XpubsInfo } = ctx.session;
+      XpubsInfo = JSON.parse(XpubsInfo);
+      const allAddressesInfo = XpubsInfo.find(
+        (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
+      )?.addressesInfo;
+      const { externalAddressesInfo } = allAddressesInfo;
+      for (const addrInfo of Object.values(externalAddressesInfo)) {
+        const unusedAddress = addrInfo.addresses.find(
+          (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
+        );
+        if (unusedAddress) {
+          return unusedAddress;
+        }
+      }
+      throw Error("Wallet is syncing... Please try again later");
+    }
+    throw Error("Wallet is syncing... Please try again later");
   }
 };
 
@@ -182,13 +219,7 @@ const createCardanoWallet = async (bech32EncodedAccountXpub, walletName) => {
     const apiWallet = res.data;
     return ShelleyWallet.from(apiWallet, this.config);
   } catch (e) {
-    if (e?.response?.data?.code === "wallet_already_exists") {
-      return walletServer.getShelleyWallet(
-        getWalletId(bech32EncodedAccountXpub)
-      );
-    } else {
-      return null;
-    }
+    throw "Wallet not ready";
   }
 };
 
@@ -228,7 +259,7 @@ const buildTransaction = async (wallet, amount, receiverAddress) => {
     throw Error("Can not build transaction. Check the amount or address");
   }
   const opts = {
-    config: preprodConfig,
+    config: mainnetConfig,
   };
   try {
     return {

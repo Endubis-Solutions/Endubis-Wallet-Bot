@@ -27,7 +27,7 @@ const deletePastMessagesHandler = async (ctx, next) => {
         try {
           await ctx.deleteMessage(messageId);
         } catch (e) {
-          console.log(e);
+          console.error(e);
         }
         toDelete.splice(key, 1);
       }

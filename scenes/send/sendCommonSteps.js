@@ -115,7 +115,7 @@ Step 4
           [
             Markup.button.url(
               "More Details",
-              `https://testnet.cardanoscan.io/transaction/${transaction.id}`
+              `https://cardanoscan.io/transaction/${transaction.id}`
             ),
           ]
         );
@@ -130,7 +130,7 @@ Step 4
           [
             Markup.button.url(
               "More Details",
-              `https://testnet.cardanoscan.io/transaction/${transaction.id}`
+              `https://cardanoscan.io/transaction/${transaction.id}`
             ),
           ],
           [mainMenuButton()],
@@ -148,7 +148,7 @@ Status: Pending`,
             [
               Markup.button.url(
                 "More Details",
-                `https://testnet.cardanoscan.io/transaction/${sessionData.transactionId}`
+                `https://cardanoscan.io/transaction/${sessionData.transactionId}`
               ),
             ],
           ])

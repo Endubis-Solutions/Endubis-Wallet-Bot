@@ -12,7 +12,7 @@ const shellyDerivationScheme = {
 const getConfig = (derivationScheme = shellyDerivationScheme) => ({
   isShelleyCompatible: !(derivationScheme.type === "v1"),
   network: {
-    networkId: NetworkId.TESTNET,
+    networkId: NetworkId.MAINNET,
   },
   derivationScheme,
 });

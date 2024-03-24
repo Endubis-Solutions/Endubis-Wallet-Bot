@@ -133,7 +133,7 @@ ${formatTxnData(txn)}`,
           [
             Markup.button.url(
               "More Details",
-              `https://testnet.cardanoscan.io/transaction/${txn.id}`
+              `https://cardanoscan.io/transaction/${txn.id}`
             ),
           ],
           ...(index === txnsToShow.length - 1 ? txnListControls() : []),

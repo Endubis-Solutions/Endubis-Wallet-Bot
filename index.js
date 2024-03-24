@@ -63,12 +63,16 @@ bot.start(startPayloadHandler);
 bot.use(async (ctx, next) => {
   const sessionData = ctx.session;
   if (sessionData?.loggedInXpub && !sessionData?.xpubWalletId) {
-    const wallet = await createCardanoWallet(
-      sessionData.loggedInXpub,
-      String(ctx.from.id)
-    );
-    if (wallet) {
-      ctx.session.xpubWalletId = wallet.id;
+    try {
+      const wallet = await createCardanoWallet(
+        sessionData.loggedInXpub,
+        String(ctx.from.id)
+      );
+      if (wallet) {
+        ctx.session.xpubWalletId = wallet.id;
+      }
+    } catch (e) {
+      return next();
     }
   }
   return next();
@@ -121,8 +125,5 @@ bot.action("manage-account", Scenes.Stage.enter("manageAccountScene"));
 bot.action("view-transactions", Scenes.Stage.enter("viewTransactionsScene"));
 bot.action("log-out", logoutHandler);
 
-// bot.telegram.setWebhook("https://endubiswallet.tk/bot");
-
-// bot.startWebhook("/bot", null, 5000);
 
 bot.launch();
