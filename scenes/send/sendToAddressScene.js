@@ -8,8 +8,10 @@ Step 1
 - Ask for address
 */
 const step1 = async (ctx) => {
-  await replyMenu(ctx, `Please enter the address you want to send to`);
-  return ctx.wizard.next();
+  // await replyMenu(ctx, `Please enter the address you want to send to`);
+  // return ctx.wizard.next();
+  await replyMenu(ctx, `🚧 Feature is under development, check back later 🚧`);
+  return ctx.scene.leave();
 };
 
 /* 
@@ -33,9 +35,9 @@ step2.on("text", async (ctx) => {
 
 const sendToAddressScene = new Scenes.WizardScene(
   "sendToAddressScene",
-  step1,
-  step2,
-  ...sendCommonSteps("Please enter the address to send to")
+  step1
+  // step2,
+  // ...sendCommonSteps("Please enter the address to send to")
 );
 
 module.exports = { sendToAddressScene };
