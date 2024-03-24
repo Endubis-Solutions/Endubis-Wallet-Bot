@@ -4,7 +4,7 @@ const getConfig = require("../config");
 const getCryptoProvider = require("./cryptoProvider");
 const { writeXpubDataToSession } = require("../../firestore");
 const fetch = require("cross-fetch");
-const logger = require("../../loggerSession");
+
 
 const AddressGeneratorFactory = (cryptoProvider, type) => async (index) => {
   //type 0 for external 1 for internal
@@ -147,7 +147,7 @@ const getAddressesInfo = async (accountXpub, sessionKey) => {
     try {
       summaries = await getAddressSummaries(externalAddresses);
     } catch (e) {
-      logger.Error(e.message, "getAddressSummaries", "utils/newWalletUtils/helpers/getAddressesInfo.js");
+      console.error(e.message, "getAddressSummaries", "utils/newWalletUtils/helpers/getAddressesInfo.js");
     }
     conseqUnused = externalAddresses.reduce((acc, address) => {
       if (summaries.usedAddresses.includes(address)) {

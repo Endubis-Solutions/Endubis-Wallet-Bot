@@ -9,7 +9,7 @@ const {
 const { deleteMessage } = require("../../handlers/deleteMessageHandler");
 const { getSessionKey } = require("../../firestoreInit");
 const { deleteFieldFromSession } = require("../../utils/firestore");
-const logger = require("../../utils/loggerSession");
+
 
 /*
 Steps: 
@@ -56,7 +56,7 @@ step2.hears("✅ Yes", async (ctx) => {
     await deleteMessage(deletingReply);
     await replyMenu(ctx, "Wallet Successfully Deleted");
   } catch (e) {
-    logger.Error("Error Deleting Wallet\n", "deleteWalletScene", null, e);
+    console.error("Error Deleting Wallet\n", "deleteWalletScene", null, e);
     await replyMenu(ctx, "ERROR: Something went wrong");
   }
   return ctx.scene.leave();

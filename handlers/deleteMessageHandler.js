@@ -1,11 +1,11 @@
 const bot = require("../botSession");
-const logger = require("../utils/loggerSession");
+
 
 const deleteMessage = async (res) => {
   try {
     await bot.telegram.deleteMessage(res.chat.id, res.message_id);
   } catch (error) {
-    logger.Error("Error deleting\n", "deleteMessageHandler", null, error);
+    console.error("Error deleting\n", "deleteMessageHandler", null, error);
   }
 };
 
@@ -28,7 +28,7 @@ const deletePastMessagesHandler = async (ctx, next) => {
         try {
           await ctx.deleteMessage(messageId);
         } catch (e) {
-          logger.Error("Error deleting\n", "deletePastMessageHandler", null, e);
+          console.error("Error deleting\n", "deletePastMessageHandler", null, e);
         }
         toDelete.splice(key, 1);
       }
@@ -41,7 +41,7 @@ const deletePastMessagesHandler = async (ctx, next) => {
     }
     return;
   } catch (e) {
-    logger.Error("Error deleting\n", "deletePastMessageHandler", null, e);
+    console.error("Error deleting\n", "deletePastMessageHandler", null, e);
     if (next) {
       return next();
     }

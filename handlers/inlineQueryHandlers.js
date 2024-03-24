@@ -2,7 +2,7 @@ const { Markup } = require("telegraf");
 const { getReceivingAddress } = require("../utils/newWalletUtils");
 // const { getReceivingAddress } = require("../utils/walletUtils");
 const { generateQrFileId } = require("../utils/qrCodeHelper");
-const logger = require("../utils/loggerSession");
+
 
 const sHandler = (ctx) => {
   ctx.answerInlineQuery([], {
@@ -39,7 +39,7 @@ const addrHandler = async (ctx) => {
     ];
     ctx.answerInlineQuery(results);
   } catch (e) {
-    logger.Error(
+    console.error(
       e.message,
       "addrHandler",
       "handlers/inlineQueryHandlers.js",
@@ -139,7 +139,7 @@ const generalInlineHandler = async (ctx) => {
     ];
     ctx.answerInlineQuery(results);
   } catch (e) {
-    logger.Error(
+    console.error(
       e.message,
       "generalInlineHandler",
       "handlers/inlineQueryHandlers.js",
@@ -207,7 +207,7 @@ const generalWithAmountHandler = async (ctx) => {
       ctx.answerInlineQuery(results, { cache_time: 0 });
     }
   } catch (e) {
-    logger.Error(
+    console.error(
       e.message,
       "generalInlineHandler",
       "handlers/inlineQueryHandlers.js",

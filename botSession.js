@@ -6,7 +6,9 @@ const token = process.env.TG_BOT_TOKEN;
 if (token === undefined) {
   throw new Error("TG_BOT_TOKEN must be provided!");
 }
-const bot = new Telegraf(token);
+const bot = new Telegraf(token, {
+  webhookReply: false,
+});
 
 module.exports = bot;
 //If you need a single bot instance use this

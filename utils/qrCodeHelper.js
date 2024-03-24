@@ -5,7 +5,7 @@ const QRCode = require("qrcode");
 // const nodeCanvas = require("canvas");
 
 const bot = require("../botSession");
-const logger = require("./loggerSession");
+
 
 // const generateQr = (data, image = "https://svgshare.com/i/f84.svg") => {
 //   const obj = {
@@ -55,7 +55,7 @@ const generateQrFileId = async (ctx, data, image) => {
   if (!ctx.session.qrCache) {
     ctx.session.qrCache = {};
   } else if (ctx.session.qrCache[data]) {
-    logger.Info(
+    console.log(
       "getting qr from cache",
       "generateQrFileId",
       "utils/qrCodeHrlper.js"
@@ -70,7 +70,7 @@ const generateQrFileId = async (ctx, data, image) => {
   try {
     await bot.telegram.deleteMessage(message.chat.id, message.message_id);
   } catch (error) {
-    logger.Info(
+    console.log(
       "getting qr from cache",
       "generateQrFileId",
       "utils/qrCodeHrlper.js"

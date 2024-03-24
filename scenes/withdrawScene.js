@@ -4,7 +4,7 @@ const {
   getADAtoETBRate,
   getADAtoKESRate,
 } = require("../utils/currencyExchange");
-const logger = require("../utils/loggerSession");
+
 
 const step1 = async (ctx) => {
   await replyMenuHTML(
@@ -128,7 +128,7 @@ step4.action("input-phone", async (ctx) => {
 
 const step5 = new Composer();
 step5.on("text", async (ctx) => {
-  logger.Info("Withdraw Data\n", "Withdraw Scene", null, ctx);
+  console.log("Withdraw Data\n", "Withdraw Scene", null, ctx);
   // await replyMenuHTML(
   //   ctx,
   //   `Your withdrawl has been received and is processing...\n` +

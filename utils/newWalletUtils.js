@@ -9,7 +9,7 @@ const {
 const { getSessionKey } = require("../firestoreInit");
 const { getSessionData } = require("./firestore");
 const { getReceivingAddress: getReceivingAddressWS } = require("./walletUtils");
-const logger = require("./loggerSession");
+
 
 require("dotenv").config();
 // const walletServer = WalletServer.init(
@@ -227,7 +227,7 @@ const timeout = (prom, time) =>
 //       coinSelection,
 //     };
 //   } catch (e) {
-//     logger.Error(e.message, "buildTransaction", "utils/newWalletUtils.js", e);
+//     console.error(e.message, "buildTransaction", "utils/newWalletUtils.js", e);
 //   }
 // };
 

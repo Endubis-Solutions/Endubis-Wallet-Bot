@@ -8,6 +8,7 @@ const { writeToSession } = require("./utils/firestore");
 const {
   getAddressesInfo,
 } = require("./utils/newWalletUtils/helpers/getAddressesInfo");
+const { handler } = require(".");
 
 // const Cors = require("cors")
 
@@ -28,23 +29,28 @@ app.use((req, res, next) => {
 app.get("/", (req, res) => {
   res.send("Server is up and running! :D");
 });
-app.post("/connect", async (req, res) => {
-  const { sessionKey, bech32xPub } = req.body;
-  if (sessionKey && bech32xPub) {
-    //TODO: remove this and get address list via api
-    await getAddressesInfo(bech32xPub, sessionKey);
-    //TODO: handle invalid links (hopefully on frontend)
-    const userId = userIdFromSessionKey(sessionKey);
-    const userInfo = await bot.telegram.getChat(userId);
-    await writeToSession(sessionKey, "userInfo", userInfo);
-    bot.telegram.sendMessage(
-      userId,
-      `🎉 You have been successfully logged in.`,
-      Markup.inlineKeyboard([
-        [Markup.button.callback("🏠 Go To Your Account", "back-to-menu")],
-      ])
-    );
-  }
-  res.end();
+app.post("/bot", (req, res) => {
+  handler(req);
+  res.status(200).send();
 });
+
+// app.post("/connect", async (req, res) => {
+//   const { sessionKey, bech32xPub } = req.body;
+//   if (sessionKey && bech32xPub) {
+//     //TODO: remove this and get address list via api
+//     await getAddressesInfo(bech32xPub, sessionKey);
+//     //TODO: handle invalid links (hopefully on frontend)
+//     const userId = userIdFromSessionKey(sessionKey);
+//     const userInfo = await bot.telegram.getChat(userId);
+//     await writeToSession(sessionKey, "userInfo", userInfo);
+//     bot.telegram.sendMessage(
+//       userId,
+//       `🎉 You have been successfully logged in.`,
+//       Markup.inlineKeyboard([
+//         [Markup.button.callback("🏠 Go To Your Account", "back-to-menu")],
+//       ])
+//     );
+//   }
+//   res.end();
+// });
 module.exports = app;

@@ -28,7 +28,6 @@ const { startPayloadHandler } = require("./handlers/startPayloadHandler");
 const { sendToUserIdScene } = require("./scenes/send/sendToUserIdScene");
 
 const bot = require("./botSession");
-const logger = require("./utils/loggerSession");
 const { replyMenu } = require("./utils/btnMenuHelpers");
 // const { createCardanoWallet } = require("./utils/newWalletUtils");
 const logoutHandler = require("./handlers/logoutHandler");
@@ -93,7 +92,7 @@ bot.on("callback_query", async (ctx, next) => {
     }
     // ctx.answerCbQuery(undefined, { cache_time: 5 });
   } catch (e) {
-    logger.Error(e.message, "Index.js", "callback_query", e);
+    console.error(e.message, "Index.js", "callback_query", e);
   }
   return next();
 });
@@ -126,14 +125,10 @@ bot.action("manage-account", Scenes.Stage.enter("manageAccountScene"));
 bot.action("view-transactions", Scenes.Stage.enter("viewTransactionsScene"));
 bot.action("log-out", logoutHandler);
 
-exports.handler = (event, context, callback) => {
-  const tmp = JSON.parse(event.body); // get data passed to us
-  bot.handleUpdate(tmp); // make Telegraf process that data
-  return callback(null, {
-    // return something for webhook, so it doesn't try to send same stuff again
-    statusCode: 200,
-    body: "",
-  });
+exports.handler = async (event) => {
+  const requestBody = event.body; // get data passed to us
+  await bot.handleUpdate(requestBody); // make Telegraf process that data
+
 };
 
-bot.launch();
+// bot.launch();
