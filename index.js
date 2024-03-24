@@ -127,8 +127,11 @@ bot.action("log-out", logoutHandler);
 
 exports.handler = async (event) => {
   const requestBody = event.body; // get data passed to us
-  await bot.handleUpdate(requestBody); // make Telegraf process that data
-
+  try {
+    await bot.handleUpdate(requestBody); // make Telegraf process that data
+  } catch (e) {
+    console.log("ERROR, bot handle unhandled update error", e);
+  }
 };
 
 // bot.launch();
