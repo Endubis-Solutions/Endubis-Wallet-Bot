@@ -30,7 +30,7 @@ const { sendToUserIdScene } = require("./scenes/send/sendToUserIdScene");
 const bot = require("./botSession");
 const logger = require("./utils/loggerSession");
 const { replyMenu } = require("./utils/btnMenuHelpers");
-const { createCardanoWallet } = require("./utils/newWalletUtils");
+// const { createCardanoWallet } = require("./utils/newWalletUtils");
 const logoutHandler = require("./handlers/logoutHandler");
 const { getSessionData } = require("./utils/firestore");
 const {
@@ -61,23 +61,23 @@ bot.action("back-to-menu", mainMenuHandler);
 bot.use(stage.middleware());
 bot.start(startPayloadHandler);
 
-bot.use(async (ctx, next) => {
-  const sessionData = ctx.session;
-  if (sessionData?.loggedInXpub && !sessionData?.xpubWalletId) {
-    try {
-      const wallet = await createCardanoWallet(
-        sessionData.loggedInXpub,
-        String(ctx.from.id)
-      );
-      if (wallet) {
-        ctx.session.xpubWalletId = wallet.id;
-      }
-    } catch (e) {
-      return next();
-    }
-  }
-  return next();
-});
+// bot.use(async (ctx, next) => {
+//   const sessionData = ctx.session;
+//   if (sessionData?.loggedInXpub && !sessionData?.xpubWalletId) {
+//     try {
+//       const wallet = await createCardanoWallet(
+//         sessionData.loggedInXpub,
+//         String(ctx.from.id)
+//       );
+//       if (wallet) {
+//         ctx.session.xpubWalletId = wallet.id;
+//       }
+//     } catch (e) {
+//       return next();
+//     }
+//   }
+//   return next();
+// });
 
 bot.on("callback_query", async (ctx, next) => {
   try {

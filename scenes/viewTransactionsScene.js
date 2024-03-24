@@ -38,36 +38,22 @@ const goToTxnByTimeMenu = async (ctx) => {
 
 let txns;
 
-const getTransactionsHelper = async (
-  ctx,
-  { monthsOfTxns, direction, xpubWalletId }
-) => {
-  let wallet, txns;
-  wallet = await getWalletById(xpubWalletId);
+const getTransactionsHelper = async (ctx, { monthsOfTxns, direction }) => {
+  let txns;
   if (monthsOfTxns) {
     const oneMonthInMS = 2629800000;
     const endDate = new Date(Date.now());
     const startDate = new Date(Date.now() - oneMonthInMS * monthsOfTxns);
-    if (wallet?.state?.status === "ready") {
-      txns = await wallet.getTransactions(startDate, endDate);
-    } else {
-      txns = await getTransactions(ctx);
-    }
+
+    //TODO: handle filtering transactions by date
+    txns = await getTransactions(ctx);
   } else if (direction) {
-    if (wallet?.state?.status === "ready") {
-      txns = await wallet.getTransactions();
-    } else {
-      txns = await getTransactions(ctx);
-    }
+    txns = await getTransactions(ctx);
     txns = txns.filter(
       (txn) => txn.direction === String(direction).toLowerCase()
     );
   } else {
-    if (wallet?.state?.status === "ready") {
-      txns = await wallet.getTransactions();
-    } else {
-      txns = await getTransactions(ctx);
-    }
+    txns = await getTransactions(ctx);
   }
   return txns;
 };

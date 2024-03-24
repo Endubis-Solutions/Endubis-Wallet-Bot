@@ -12,71 +12,30 @@ const { getReceivingAddress: getReceivingAddressWS } = require("./walletUtils");
 const logger = require("./loggerSession");
 
 require("dotenv").config();
-const walletServer = WalletServer.init(
-  process.env.WALLET_SERVER_URL || "http://localhost:8090/v2"
-);
+// const walletServer = WalletServer.init(
+//   process.env.WALLET_SERVER_URL || "http://localhost:8090/v2"
+// );
 
 const getReceivingAddress = async (ctx) => {
-  try {
-    const sessionData = ctx.session;
-    if (sessionData?.loggedInXpub && !sessionData?.xpubWalletId) {
-      const wallet = await createCardanoWallet(
-        sessionData.loggedIxnXpub,
-        String(ctx.from.id)
+  await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
+  ctx.session = await getSessionData(ctx);
+  if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
+    let { loggedInXpub, XpubsInfo } = ctx.session;
+    XpubsInfo = JSON.parse(XpubsInfo);
+    const allAddressesInfo = XpubsInfo.find(
+      (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
+    )?.addressesInfo;
+    const { externalAddressesInfo } = allAddressesInfo;
+    for (const addrInfo of Object.values(externalAddressesInfo)) {
+      const unusedAddress = addrInfo.addresses.find(
+        (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
       );
-      if (wallet) {
-        ctx.session.xpubWalletId = wallet.id;
+      if (unusedAddress) {
+        return unusedAddress;
       }
     }
-    if (ctx.session.xpubWalletId) {
-      return await getReceivingAddressWS(ctx.session.xpubWalletId);
-    } else {
-      await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
-      ctx.session = await getSessionData(ctx);
-      if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
-        let { loggedInXpub, XpubsInfo } = ctx.session;
-        XpubsInfo = JSON.parse(XpubsInfo);
-        const allAddressesInfo = XpubsInfo.find(
-          (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
-        )?.addressesInfo;
-        const { externalAddressesInfo } = allAddressesInfo;
-        for (const addrInfo of Object.values(externalAddressesInfo)) {
-          const unusedAddress = addrInfo.addresses.find(
-            (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
-          );
-          if (unusedAddress) {
-            return unusedAddress;
-          }
-        }
-        throw Error("Wallet is syncing... Please try again later");
-      }
-      throw Error("Wallet is syncing... Please try again later");
-    }
-  } catch (e) {
-    if (e.message === "Wallet is syncing... Please try again later") {
-      throw "Wallet is syncing... Please try again later";
-    }
-    await getAddressesInfo(ctx.session.loggedInXpub, getSessionKey(ctx));
-    ctx.session = await getSessionData(ctx);
-    if (ctx.session.loggedInXpub && ctx.session.XpubsInfo) {
-      let { loggedInXpub, XpubsInfo } = ctx.session;
-      XpubsInfo = JSON.parse(XpubsInfo);
-      const allAddressesInfo = XpubsInfo.find(
-        (xpubInfo) => xpubInfo.accountXpub === loggedInXpub
-      )?.addressesInfo;
-      const { externalAddressesInfo } = allAddressesInfo;
-      for (const addrInfo of Object.values(externalAddressesInfo)) {
-        const unusedAddress = addrInfo.addresses.find(
-          (addr) => !addrInfo.summaries.usedAddresses.includes(addr)
-        );
-        if (unusedAddress) {
-          return unusedAddress;
-        }
-      }
-      throw Error("Wallet is syncing... Please try again later");
-    }
-    throw Error("Wallet is syncing... Please try again later");
   }
+  throw Error("Error... try again later");
 };
 
 // const deleteWallet = async (walletId) => {};
@@ -205,78 +164,78 @@ const getBalance = async (ctx) => {
 const timeout = (prom, time) =>
   Promise.race([prom, new Promise((_r, rej) => setTimeout(rej, time))]);
 
-const createCardanoWallet = async (bech32EncodedAccountXpub, walletName) => {
-  const payload = {
-    name: walletName,
-    account_public_key: bech32
-      .decode(bech32EncodedAccountXpub)
-      .data.toString("hex"),
-  };
-  try {
-    const res = await timeout(
-      walletServer.walletsApi.postWallet(payload),
-      4000
-    );
-    const apiWallet = res.data;
-    return ShelleyWallet.from(apiWallet, this.config);
-  } catch (e) {
-    throw "Wallet not ready";
-  }
-};
+// const createCardanoWallet = async (bech32EncodedAccountXpub, walletName) => {
+//   const payload = {
+//     name: walletName,
+//     account_public_key: bech32
+//       .decode(bech32EncodedAccountXpub)
+//       .data.toString("hex"),
+//   };
+//   try {
+//     const res = await timeout(
+//       walletServer.walletsApi.postWallet(payload),
+//       4000
+//     );
+//     const apiWallet = res.data;
+//     return ShelleyWallet.from(apiWallet, this.config);
+//   } catch (e) {
+//     throw "Wallet not ready";
+//   }
+// };
 
-const getWalletById = async (walletId) => {
-  try {
-    const wallet = await walletServer.getShelleyWallet(walletId);
-    return wallet;
-  } catch (e) {
-    if (e.response?.data?.code === "no_such_wallet") {
-      return null;
-    } else {
-      throw e;
-    }
-  }
-};
+// const getWalletById = async (walletId) => {
+//   try {
+//     const wallet = await walletServer.getShelleyWallet(walletId);
+//     return wallet;
+//   } catch (e) {
+//     if (e.response?.data?.code === "no_such_wallet") {
+//       return null;
+//     } else {
+//       throw e;
+//     }
+//   }
+// };
 
-const getWalletId = (bech32EncodedAccountXpub) => {
-  return blake.blake2bHex(
-    bech32.decode(bech32EncodedAccountXpub).data,
-    null,
-    20
-  );
-};
+// const getWalletId = (bech32EncodedAccountXpub) => {
+//   return blake.blake2bHex(
+//     bech32.decode(bech32EncodedAccountXpub).data,
+//     null,
+//     20
+//   );
+// };
 
-const getTtl = async () => {
-  let info = await walletServer.getNetworkInformation();
-  return info.node_tip.absolute_slot_number * 12000;
-};
+// const getTtl = async () => {
+//   let info = await walletServer.getNetworkInformation();
+//   return info.node_tip.absolute_slot_number * 12000;
+// };
 
-const buildTransaction = async (wallet, amount, receiverAddress) => {
-  const ttl = await getTtl();
-  const coinSelection = await wallet.getCoinSelection(
-    [receiverAddress],
-    [amount]
-  );
-  if (!coinSelection) {
-    throw Error("Can not build transaction. Check the amount or address");
-  }
-  const opts = {
-    config: mainnetConfig,
-  };
-  try {
-    return {
-      transaction: Seed.buildTransaction(coinSelection, ttl, opts),
-      coinSelection,
-    };
-  } catch (e) {
-    logger.Error(e.message, "buildTransaction", 'utils/newWalletUtils.js', e);
-  }
-};
+// const buildTransaction = async (wallet, amount, receiverAddress) => {
+//   const ttl = await getTtl();
+//   const coinSelection = await wallet.getCoinSelection(
+//     [receiverAddress],
+//     [amount]
+//   );
+//   if (!coinSelection) {
+//     throw Error("Can not build transaction. Check the amount or address");
+//   }
+//   const opts = {
+//     config: mainnetConfig,
+//   };
+//   try {
+//     return {
+//       transaction: Seed.buildTransaction(coinSelection, ttl, opts),
+//       coinSelection,
+//     };
+//   } catch (e) {
+//     logger.Error(e.message, "buildTransaction", "utils/newWalletUtils.js", e);
+//   }
+// };
 
 module.exports = {
   getReceivingAddress,
   getBalance,
   getTransactions,
-  createCardanoWallet,
-  getWalletById,
-  buildTransaction,
+  // createCardanoWallet,
+  // getWalletById,
+  // buildTransaction,
 };

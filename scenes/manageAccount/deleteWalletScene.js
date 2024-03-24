@@ -48,16 +48,15 @@ step2.hears("✅ Yes", async (ctx) => {
     Markup.removeKeyboard()
   );
   try {
-    await deleteWallet(ctx.session.xpubWalletId);
-    await deleteMessage(deletingReply);
-    await replyMenu(ctx, "Wallet Successfully Deleted");
+    // await deleteWallet(ctx.session.xpubWalletId);
     const { messageIdsToDelete } = ctx.session;
     ctx.session = null;
-    await deleteFieldFromSession("encryptedMnemonic", getSessionKey(ctx));
     ctx.session.messageIdsToDelete = messageIdsToDelete;
+    await deleteFieldFromSession("encryptedMnemonic", getSessionKey(ctx));
+    await deleteMessage(deletingReply);
+    await replyMenu(ctx, "Wallet Successfully Deleted");
   } catch (e) {
     logger.Error("Error Deleting Wallet\n", "deleteWalletScene", null, e);
-    //TODO - Better error messages
     await replyMenu(ctx, "ERROR: Something went wrong");
   }
   return ctx.scene.leave();

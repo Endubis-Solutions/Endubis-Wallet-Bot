@@ -27,7 +27,7 @@ const step2 = new Composer();
 step2.action("receiving-address", async (ctx) => {
   try {
     const address = await getReceivingAddress(ctx);
-    if(!address) {
+    if (!address) {
       throw "Error: Try again later";
     }
     await replyMenuHTML(
@@ -42,12 +42,8 @@ step2.action("receiving-address", async (ctx) => {
     );
     return ctx.scene.leave();
   } catch (e) {
-    await replyMenuHTML(
-      ctx,
-      e?.message || "Error: Try again later"
-    );
+    await replyMenuHTML(ctx, e?.message || "Error: Try again later");
   }
-  
 });
 step2.action("receiving-qr", async (ctx) => {
   const startPayload = Buffer.from(

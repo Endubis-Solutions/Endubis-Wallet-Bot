@@ -2,6 +2,7 @@ const { Markup } = require("telegraf");
 const { getReceivingAddress } = require("../utils/newWalletUtils");
 // const { getReceivingAddress } = require("../utils/walletUtils");
 const { generateQrFileId } = require("../utils/qrCodeHelper");
+const logger = require("../utils/loggerSession");
 
 const sHandler = (ctx) => {
   ctx.answerInlineQuery([], {
@@ -10,31 +11,41 @@ const sHandler = (ctx) => {
   });
 };
 const addrHandler = async (ctx) => {
-  const address = await getReceivingAddress(ctx);
-  const results = [
-    {
-      type: "article",
-      id: 1,
-      title: "Send your receiving address",
-      input_message_content: {
-        message_text: `You can send to <a href="tg://user?id=${
-          ctx.session.userInfo?.id
-        }"><b>${
-          ctx.session.userInfo?.username
-            ? `@` + ctx.session.userInfo?.username + ` - `
-            : ``
-        }${ctx.session.userInfo?.first_name}${
-          ctx.session.userInfo?.last_name
-            ? ` ` + ctx.session.userInfo?.last_name
-            : ``
-        }</b></a> using this address. 
+  try {
+    const address = await getReceivingAddress(ctx);
+
+    const results = [
+      {
+        type: "article",
+        id: 1,
+        title: "Send your receiving address",
+        input_message_content: {
+          message_text: `You can send to <a href="tg://user?id=${
+            ctx.session.userInfo?.id
+          }"><b>${
+            ctx.session.userInfo?.username
+              ? `@` + ctx.session.userInfo?.username + ` - `
+              : ``
+          }${ctx.session.userInfo?.first_name}${
+            ctx.session.userInfo?.last_name
+              ? ` ` + ctx.session.userInfo?.last_name
+              : ``
+          }</b></a> using this address. 
 
 <code>${address}</code>`,
-        parse_mode: "HTML",
+          parse_mode: "HTML",
+        },
       },
-    },
-  ];
-  ctx.answerInlineQuery(results);
+    ];
+    ctx.answerInlineQuery(results);
+  } catch (e) {
+    logger.Error(
+      e.message,
+      "addrHandler",
+      "handlers/inlineQueryHandlers.js",
+      e
+    );
+  }
 };
 const qrHandler = async (ctx) => {
   const startPayload = Buffer.from(
@@ -69,93 +80,18 @@ const qrHandler = async (ctx) => {
 };
 
 const generalInlineHandler = async (ctx) => {
-  const address = await getReceivingAddress(ctx);
-  const startPayload = Buffer.from(
-    `sendto=${ctx.session.userInfo?.id}`
-  ).toString("base64");
-  const results = [
-    {
-      type: "article",
-      id: 1,
-      title: "Send your receiving address",
-      input_message_content: {
-        message_text: `Send to <a href="tg://user?id=${
-          ctx.session.userInfo?.id
-        }"><b>${
-          ctx.session.userInfo?.username
-            ? `@` + ctx.session.userInfo?.username + ` - `
-            : ``
-        }${ctx.session.userInfo?.first_name}${
-          ctx.session.userInfo?.last_name
-            ? ` ` + ctx.session.userInfo?.last_name
-            : ``
-        }</b></a> using this address. 
-
-<code>${address}</code>`,
-        parse_mode: "HTML",
-      },
-    },
-    {
-      type: "article",
-      id: 2,
-      title: "Send your receiving payment link",
-      description:
-        "Send a message with a link to the wallet with your contact pre-filled",
-      input_message_content: {
-        message_text: `Send to <a href="tg://user?id=${
-          ctx.session.userInfo?.id
-        }"><b>${
-          ctx.session.userInfo?.username
-            ? `@` + ctx.session.userInfo?.username + ` - `
-            : ``
-        }${ctx.session.userInfo?.first_name}${
-          ctx.session.userInfo?.last_name
-            ? ` ` + ctx.session.userInfo?.last_name
-            : ``
-        }</b></a>`,
-        parse_mode: "HTML",
-      },
-      ...Markup.inlineKeyboard([
-        [
-          Markup.button.url(
-            "Send",
-            `http://t.me/${ctx.botInfo.username}?start=${startPayload}`
-          ),
-        ],
-      ]),
-    },
-  ];
-  ctx.answerInlineQuery(results);
-};
-
-const generalWithAmountHandler = async (ctx) => {
-  if (Number(ctx.match[1])) {
-    const amountToSend = Number(ctx.match[1]);
-    const startPayload = Buffer.from(
-      `sendto=${
-        ctx.session.userInfo?.id
-      }&amount=${amountToSend}&expiry=${Date.now()}`
-    ).toString("base64");
+  try {
     const address = await getReceivingAddress(ctx);
+    const startPayload = Buffer.from(
+      `sendto=${ctx.session.userInfo?.id}`
+    ).toString("base64");
     const results = [
       {
         type: "article",
         id: 1,
-        title: `Send your receiving address for a ${amountToSend} ada payment`,
+        title: "Send your receiving address",
         input_message_content: {
-          message_text: `Send me <i><b>${amountToSend} ada</b></i> using this address. 
-<i><b>${address}</b></i>`,
-          parse_mode: "HTML",
-        },
-      },
-      {
-        type: "article",
-        id: 2,
-        title: `Send a ${amountToSend} ada receiving payment link`,
-        description:
-          "Send a message with a link to the wallet with your contact pre-filled",
-        input_message_content: {
-          message_text: `<a href="tg://user?id=${
+          message_text: `Send to <a href="tg://user?id=${
             ctx.session.userInfo?.id
           }"><b>${
             ctx.session.userInfo?.username
@@ -165,25 +101,118 @@ const generalWithAmountHandler = async (ctx) => {
             ctx.session.userInfo?.last_name
               ? ` ` + ctx.session.userInfo?.last_name
               : ``
-          }</b></a> has requested <i><b>${amountToSend} ada</b></i>
-<i>Note: The payment button below expires after one hour</i>`,
+          }</b></a> using this address. 
+
+<code>${address}</code>`,
+          parse_mode: "HTML",
+        },
+      },
+      {
+        type: "article",
+        id: 2,
+        title: "Send your receiving payment link",
+        description:
+          "Send a message with a link to the wallet with your contact pre-filled",
+        input_message_content: {
+          message_text: `Send to <a href="tg://user?id=${
+            ctx.session.userInfo?.id
+          }"><b>${
+            ctx.session.userInfo?.username
+              ? `@` + ctx.session.userInfo?.username + ` - `
+              : ``
+          }${ctx.session.userInfo?.first_name}${
+            ctx.session.userInfo?.last_name
+              ? ` ` + ctx.session.userInfo?.last_name
+              : ``
+          }</b></a>`,
           parse_mode: "HTML",
         },
         ...Markup.inlineKeyboard([
           [
             Markup.button.url(
-              `Send ${amountToSend} ada to ${
-                ctx.session.userInfo?.username
-                  ? `@` + ctx.session.userInfo?.username
-                  : ctx.session.userInfo?.first_name
-              }`,
+              "Send",
               `http://t.me/${ctx.botInfo.username}?start=${startPayload}`
             ),
           ],
         ]),
       },
     ];
-    ctx.answerInlineQuery(results, { cache_time: 0 });
+    ctx.answerInlineQuery(results);
+  } catch (e) {
+    logger.Error(
+      e.message,
+      "generalInlineHandler",
+      "handlers/inlineQueryHandlers.js",
+      e
+    );
+  }
+};
+
+const generalWithAmountHandler = async (ctx) => {
+  try {
+    if (Number(ctx.match[1])) {
+      const amountToSend = Number(ctx.match[1]);
+      const startPayload = Buffer.from(
+        `sendto=${
+          ctx.session.userInfo?.id
+        }&amount=${amountToSend}&expiry=${Date.now()}`
+      ).toString("base64");
+      const address = await getReceivingAddress(ctx);
+      const results = [
+        {
+          type: "article",
+          id: 1,
+          title: `Send your receiving address for a ${amountToSend} ada payment`,
+          input_message_content: {
+            message_text: `Send me <i><b>${amountToSend} ada</b></i> using this address. 
+<i><b>${address}</b></i>`,
+            parse_mode: "HTML",
+          },
+        },
+        {
+          type: "article",
+          id: 2,
+          title: `Send a ${amountToSend} ada receiving payment link`,
+          description:
+            "Send a message with a link to the wallet with your contact pre-filled",
+          input_message_content: {
+            message_text: `<a href="tg://user?id=${
+              ctx.session.userInfo?.id
+            }"><b>${
+              ctx.session.userInfo?.username
+                ? `@` + ctx.session.userInfo?.username + ` - `
+                : ``
+            }${ctx.session.userInfo?.first_name}${
+              ctx.session.userInfo?.last_name
+                ? ` ` + ctx.session.userInfo?.last_name
+                : ``
+            }</b></a> has requested <i><b>${amountToSend} ada</b></i>
+<i>Note: The payment button below expires after one hour</i>`,
+            parse_mode: "HTML",
+          },
+          ...Markup.inlineKeyboard([
+            [
+              Markup.button.url(
+                `Send ${amountToSend} ada to ${
+                  ctx.session.userInfo?.username
+                    ? `@` + ctx.session.userInfo?.username
+                    : ctx.session.userInfo?.first_name
+                }`,
+                `http://t.me/${ctx.botInfo.username}?start=${startPayload}`
+              ),
+            ],
+          ]),
+        },
+      ];
+      ctx.answerInlineQuery(results, { cache_time: 0 });
+    }
+  } catch (e) {
+    logger.Error(
+      e.message,
+      "generalInlineHandler",
+      "handlers/inlineQueryHandlers.js",
+      e
+    );
   }
 };
 module.exports = {

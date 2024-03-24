@@ -17,23 +17,12 @@ const formatWalletDataHTML = (walletBalance, name) => {
 };
 
 const walletBalanceHandler = async (ctx) => {
-  if (!ctx.session.loggedInXpub) {
-    return mainMenuHandler(ctx);
-  }
-  const wallet = await getWalletById(ctx.session.xpubWalletId);
-  if (wallet?.state?.status === "ready") {
-    await replyMenuHTML(
-      ctx,
-      formatWalletDataHTML(wallet, ctx.session.userInfo?.first_name)
-    );
-  } else {
-    const walletBalance = await getBalance(ctx);
+  const walletBalance = await getBalance(ctx);
 
-    await replyMenuHTML(
-      ctx,
-      formatWalletDataHTML(walletBalance, ctx.session.userInfo?.first_name)
-    );
-  }
+  await replyMenuHTML(
+    ctx,
+    formatWalletDataHTML(walletBalance, ctx.session.userInfo?.first_name)
+  );
 };
 
 module.exports = { walletBalanceHandler };
