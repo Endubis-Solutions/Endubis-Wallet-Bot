@@ -1,5 +1,6 @@
 /* eslint-disable node/no-missing-require */
 const { db, sessionDocName, getSessionKey, FieldValue } = require("../firestoreInit");
+const logger = require("./loggerSession");
 
 const writeXpubDataToSession = async (
   sessionKey,
@@ -32,8 +33,7 @@ const writeXpubDataToSession = async (
       XpubsInfo: JSON.stringify(newXpubsInfo),
     });
   } catch (e) {
-    console.log(e);
-  }
+    logger.Error(e.message, "writeXpubDataToSession", 'utils/firestore.js', e);  }
 };
 
 const getUserXpubsInfo = async (sessionKey) => {

@@ -1,7 +1,7 @@
 const { Scenes, Composer } = require("telegraf");
 const { replyMenu } = require("../../utils/btnMenuHelpers");
 const { sendCommonSteps } = require("./sendCommonSteps");
-const { getCodeFromQrCodeImageUrl } = require("../../utils/qrCodeHerlper");
+const { getCodeFromQrCodeImageUrl } = require("../../utils/qrCodeHelper");
 
 const step1 = async (ctx) => {
   replyMenu(ctx, `Please send the qr code to scan`);

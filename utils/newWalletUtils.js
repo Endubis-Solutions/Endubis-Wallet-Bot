@@ -9,6 +9,7 @@ const {
 const { getSessionKey } = require("../firestoreInit");
 const { getSessionData } = require("./firestore");
 const { getReceivingAddress: getReceivingAddressWS } = require("./walletUtils");
+const logger = require("./loggerSession");
 
 require("dotenv").config();
 const walletServer = WalletServer.init(
@@ -267,7 +268,7 @@ const buildTransaction = async (wallet, amount, receiverAddress) => {
       coinSelection,
     };
   } catch (e) {
-    console.error(e);
+    logger.Error(e.message, "buildTransaction", 'utils/newWalletUtils.js', e);
   }
 };
 

@@ -7,7 +7,7 @@ const {
 const { getReceivingAddress } = require("../utils/newWalletUtils");
 // const { getReceivingAddress } = require("../utils/walletUtils");
 
-const { generateQrFileId } = require("../utils/qrCodeHerlper");
+const { generateQrFileId } = require("../utils/qrCodeHelper");
 
 // TODO: Generate QR Code
 

@@ -1,7 +1,7 @@
 const { Markup } = require("telegraf");
 const { getReceivingAddress } = require("../utils/newWalletUtils");
 // const { getReceivingAddress } = require("../utils/walletUtils");
-const { generateQrFileId } = require("../utils/qrCodeHerlper");
+const { generateQrFileId } = require("../utils/qrCodeHelper");
 
 const sHandler = (ctx) => {
   ctx.answerInlineQuery([], {

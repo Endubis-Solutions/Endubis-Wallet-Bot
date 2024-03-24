@@ -1,16 +1,30 @@
 const { Scenes, Composer, Markup } = require("telegraf");
 const { replyMenuHTML } = require("../utils/btnMenuHelpers");
-const { getADAtoETBRate, getADAtoKESRate } = require("../utils/currencyExchange");
+const {
+  getADAtoETBRate,
+  getADAtoKESRate,
+} = require("../utils/currencyExchange");
+const logger = require("../utils/loggerSession");
 
 const step1 = async (ctx) => {
   await replyMenuHTML(
     ctx,
     "Please select an option from the choices below",
     Markup.inlineKeyboard([
-      [Markup.button.callback("🆃 Withdraw to Telebirr (Ethiopia)", "withdraw-telebirr")],
+      [
+        Markup.button.callback(
+          "🆃 Withdraw to Telebirr (Ethiopia)",
+          "withdraw-telebirr"
+        ),
+      ],
       [Markup.button.callback("ⓜ Withdraw to MPESA", "withdraw-mpesa")],
       [Markup.button.callback("↻ Pending Withdrawals", "pending-withdrawals")],
-      [Markup.button.callback("✅ Complete Withdrawals", "complete-withdrawals")],
+      [
+        Markup.button.callback(
+          "✅ Complete Withdrawals",
+          "complete-withdrawals"
+        ),
+      ],
     ])
   );
   return ctx.wizard.next();
@@ -107,21 +121,17 @@ step3.on("text", async (ctx) => {
 const step4 = new Composer();
 step4.action("input-phone", async (ctx) => {
   ctx.session.withdrawMethod = "mpesa";
-  
-  await replyMenuHTML(
-    ctx,
-    `Please input phone number to withdraw to`
-  );
+
+  await replyMenuHTML(ctx, `Please input phone number to withdraw to`);
   return ctx.wizard.next();
 });
 
 const step5 = new Composer();
 step5.on("text", async (ctx) => {
-  console.log(ctx.message?.text);
-
+  logger.Info("Withdraw Data\n", "Withdraw Scene", null, ctx);
   // await replyMenuHTML(
   //   ctx,
-  //   `Your withdrawl has been received and is processing...\n` + 
+  //   `Your withdrawl has been received and is processing...\n` +
   //   `We will update you when the withdrawl is complete\n\n` +
   //     `<i>TXN-ID: ${Math.random().toString(16).slice(2)}\n</i>`
   // );

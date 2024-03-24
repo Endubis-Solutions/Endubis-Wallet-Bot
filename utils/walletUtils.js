@@ -6,6 +6,7 @@ const {
   StakePoolsApi,
   WalletsApi,
 } = require("cardano-wallet-js/dist/api");
+const logger = require("./loggerSession");
 
 require("dotenv").config();
 let walletServer = WalletServer.init(
@@ -30,7 +31,7 @@ const getWalletById = async (walletId) => {
     const wallet = await timeout(walletServer.getShelleyWallet(walletId), 4000);
     return wallet;
   } catch (e) {
-    console.error(e?.message);
+    logger.Error(e.message, "getWalletById", "utils/walletUtils.js");
     return null;
   }
 };
@@ -41,7 +42,7 @@ const getWalletByName = async (walletName) => {
     let foundWallet = wallets.find((wallet) => wallet.name === walletName);
     return foundWallet;
   } catch (e) {
-    console.log(e);
+    logger.Error(e.message, "getWalletByName", "utils/walletUtils.js");
     return null;
   }
 };
@@ -56,14 +57,6 @@ const isWalletServerActive = async () => {
 };
 const listWallets = async () => {
   let wallets = await timeout(walletServer.wallets(), 4000);
-  console.log(
-    wallets.map((w) => ({
-      id: w.id,
-      name: w.name,
-      balance: w.balance.total.quantity / 1000000,
-      status: w.state.status,
-    }))
-  );
   return wallets;
 };
 
